@@ -78,6 +78,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       }
     },
     {
+      id: 'inspect-pipeline-progress',
+      category: 'Pipeline & Telemetry',
+      label: 'Inspect Multi-Step Repair Progress & Milestones',
+      sublabel: 'View stage percentages, live ETA, memory footprint & AST metrics',
+      icon: <Activity className="w-4 h-4 text-cyan-400" />,
+      shortcut: '⌘P',
+      action: () => {
+        playTactileSound('stepAdvance', soundFxEnabled);
+        onSelectTab('simulator');
+        onClose();
+      }
+    },
+    {
       id: 'simulate-webhook',
       category: 'Agent Action',
       label: 'Simulate GitHub Webhook Delivery',

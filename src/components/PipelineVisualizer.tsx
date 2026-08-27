@@ -3,6 +3,7 @@ import { Radio, Bot, Terminal, GitPullRequest, ArrowRight, Zap, CheckCircle2, Sp
 import { motion, AnimatePresence } from 'motion/react';
 import { ThemeMode } from '../types';
 import { playTactileSound } from '../utils/sound';
+import { PipelineProgressBar } from './PipelineProgressBar';
 
 interface PipelineVisualizerProps {
   status: 'queued' | 'reproducing' | 'analyzing' | 'patching' | 'verifying' | 'resolved' | 'failed';
@@ -10,6 +11,8 @@ interface PipelineVisualizerProps {
   onSimulateWebhook: () => void;
   onRunAgent: () => void;
   soundFxEnabled?: boolean;
+  executionTimeMs?: number;
+  tokensUsed?: number;
 }
 
 interface Particle {
@@ -31,6 +34,8 @@ export const PipelineVisualizer: React.FC<PipelineVisualizerProps> = ({
   onSimulateWebhook,
   onRunAgent,
   soundFxEnabled = true,
+  executionTimeMs = 0,
+  tokensUsed = 0,
 }) => {
   const [particles, setParticles] = useState<Particle[]>([]);
   const [showExplosion, setShowExplosion] = useState(false);
@@ -293,6 +298,15 @@ export const PipelineVisualizer: React.FC<PipelineVisualizerProps> = ({
           );
         })}
       </div>
+
+      {/* Multi-Step Repair Completion Progress Bar & Milestone Inspector */}
+      <PipelineProgressBar
+        status={status}
+        executionTimeMs={executionTimeMs}
+        tokensUsed={tokensUsed}
+        soundFxEnabled={soundFxEnabled}
+        onRerun={onRunAgent}
+      />
     </div>
   );
 };

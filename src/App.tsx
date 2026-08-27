@@ -173,45 +173,74 @@ export default function App() {
   };
 
   const handleRunAgent = async () => {
-    setCurrentStatus('analyzing');
+    setCurrentStatus('reproducing');
     playTactileSound('beacon', settings.soundFxEnabled);
 
-    const newLog: LogEntry = {
+    const log1: LogEntry = {
       id: `log_${Date.now()}`,
       timestamp: new Date().toISOString(),
-      type: 'ai',
-      message: `[${(settings.persona || 'safe_linter').toUpperCase()}]: Initiating AST diff analysis for ${selectedRepo}...`,
+      type: 'sandbox',
+      message: `[SANDBOX]: Spinning up isolated E2B microVM for ${selectedRepo}...`,
     };
-    setCurrentLogs((prev) => [newLog, ...prev]);
+    setCurrentLogs((prev) => [log1, ...prev]);
 
     setTimeout(() => {
-      setCurrentStatus('verifying');
+      setCurrentStatus('analyzing');
+      playTactileSound('stepAdvance', settings.soundFxEnabled);
       setCurrentLogs((prev) => [
         {
           id: `log_${Date.now() + 1}`,
           timestamp: new Date().toISOString(),
-          type: 'sandbox',
-          message: 'E2B Sandbox Container: Executing Jest test suite inside isolated runner...',
+          type: 'ai',
+          message: `[${(settings.persona || 'safe_linter').toUpperCase()}]: Gemini 3.6 Flash parsing AST and generating unified diff patch...`,
         },
         ...prev,
       ]);
-    }, 1200);
+    }, 900);
 
     setTimeout(() => {
-      setCurrentStatus('resolved');
-      setTokensUsed((prev) => prev + 480);
-      setExecutionTimeMs(1180);
-      playTactileSound('success', settings.soundFxEnabled);
+      setCurrentStatus('patching');
+      playTactileSound('stepAdvance', settings.soundFxEnabled);
       setCurrentLogs((prev) => [
         {
           id: `log_${Date.now() + 2}`,
           timestamp: new Date().toISOString(),
-          type: 'success',
-          message: 'Patch verified! GitHub Check suite green. Hotfix commit pushed automatically.',
+          type: 'ai',
+          message: 'Applying syntactic AST patch and checking safety guardrails (0 token drift)...',
         },
         ...prev,
       ]);
-    }, 2800);
+    }, 1800);
+
+    setTimeout(() => {
+      setCurrentStatus('verifying');
+      playTactileSound('stepAdvance', settings.soundFxEnabled);
+      setCurrentLogs((prev) => [
+        {
+          id: `log_${Date.now() + 3}`,
+          timestamp: new Date().toISOString(),
+          type: 'sandbox',
+          message: 'E2B Sandbox Runner: Executing Jest unit test suite inside isolated runner...',
+        },
+        ...prev,
+      ]);
+    }, 2700);
+
+    setTimeout(() => {
+      setCurrentStatus('resolved');
+      setTokensUsed((prev) => prev + 385);
+      setExecutionTimeMs(3420);
+      playTactileSound('repairComplete', settings.soundFxEnabled);
+      setCurrentLogs((prev) => [
+        {
+          id: `log_${Date.now() + 4}`,
+          timestamp: new Date().toISOString(),
+          type: 'success',
+          message: 'PASS: All 14 test suites passed in 0.84s. Hotfix commit created & branch pushed.',
+        },
+        ...prev,
+      ]);
+    }, 3600);
   };
 
   return (
@@ -294,6 +323,8 @@ export default function App() {
                   onSimulateWebhook={handleSimulateWebhook}
                   onRunAgent={handleRunAgent}
                   soundFxEnabled={settings.soundFxEnabled}
+                  tokensUsed={tokensUsed}
+                  executionTimeMs={executionTimeMs}
                 />
 
                 <PRSimulator

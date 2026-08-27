@@ -41,7 +41,10 @@ export type SoundType =
   | 'closeHub'
   | 'execCommand'
   | 'tunnelConnect'
-  | 'tunnelData';
+  | 'tunnelData'
+  | 'stepAdvance'
+  | 'progressTick'
+  | 'repairComplete';
 
 export const playTactileSound = (type: SoundType, enabled = true) => {
   if (!enabled) return;
@@ -97,6 +100,55 @@ export const playTactileSound = (type: SoundType, enabled = true) => {
       gain.connect(ctx.destination);
       osc.start(now);
       osc.stop(now + 0.02);
+
+    } else if (type === 'stepAdvance') {
+      // Ascending crisp dual blip when a pipeline repair step completes and advances
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc1.type = 'sine';
+      osc2.type = 'triangle';
+      osc1.frequency.setValueAtTime(523.25, now); // C5
+      osc1.frequency.exponentialRampToValueAtTime(783.99, now + 0.05); // G5
+      osc2.frequency.setValueAtTime(1046.50, now + 0.03); // C6
+      gain.gain.setValueAtTime(0.035, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+      osc1.start(now);
+      osc2.start(now + 0.03);
+      osc1.stop(now + 0.08);
+      osc2.stop(now + 0.08);
+
+    } else if (type === 'progressTick') {
+      // Sub-millisecond mechanical clock pulse
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1200, now);
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.012);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.012);
+
+    } else if (type === 'repairComplete') {
+      // Triumphant cyber arpeggio for full pipeline repair completion
+      const freqs = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
+      freqs.forEach((f, idx) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, now + idx * 0.045);
+        g.gain.setValueAtTime(0.03, now + idx * 0.045);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.045 + 0.2);
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.start(now + idx * 0.045);
+        o.stop(now + idx * 0.045 + 0.2);
+      });
 
     } else if (type === 'click') {
       // Crisp subtle tap
