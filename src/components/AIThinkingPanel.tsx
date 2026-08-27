@@ -14,6 +14,7 @@ import {
 import { motion } from 'motion/react';
 import { LogEntry, ThemeMode } from '../types';
 import { playTactileSound } from '../utils/sound';
+import { ConnectionTunnel } from './ConnectionTunnel';
 
 interface AIThinkingPanelProps {
   logs: LogEntry[];
@@ -123,6 +124,12 @@ export const AIThinkingPanel: React.FC<AIThinkingPanelProps> = ({
             <span className="text-[#4ade80] font-bold">{(executionTimeMs / 1000).toFixed(2)}s</span>
           </div>
         </div>
+
+        {/* Visual Secure Connection Tunnel to Sandbox Environment */}
+        <ConnectionTunnel
+          status={status}
+          soundFxEnabled={soundFxEnabled}
+        />
 
         {/* Stream Thinking Process Terminal Log */}
         <div className="space-y-1.5">

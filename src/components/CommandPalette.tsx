@@ -12,7 +12,8 @@ import {
   Bot,
   Terminal,
   Zap,
-  X
+  X,
+  Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ThemeMode, AgentPersona } from '../types';
@@ -58,6 +59,20 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       shortcut: '⌘R',
       action: () => {
         playTactileSound('primary', soundFxEnabled);
+        onRunAgent();
+        onClose();
+      }
+    },
+    {
+      id: 'test-tunnel',
+      category: 'Agent Action',
+      label: 'Establish Secure Sandbox Connection Tunnel',
+      sublabel: 'Initialize mTLS 1.3 encrypted microVM bridge & analyze PR',
+      icon: <Lock className="w-4 h-4 text-[#4ade80]" />,
+      shortcut: '⌘T',
+      action: () => {
+        playTactileSound('tunnelConnect', soundFxEnabled);
+        onSelectTab('simulator');
         onRunAgent();
         onClose();
       }

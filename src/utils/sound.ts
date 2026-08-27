@@ -39,7 +39,9 @@ export type SoundType =
   | 'clear'
   | 'openHub'
   | 'closeHub'
-  | 'execCommand';
+  | 'execCommand'
+  | 'tunnelConnect'
+  | 'tunnelData';
 
 export const playTactileSound = (type: SoundType, enabled = true) => {
   if (!enabled) return;
@@ -49,7 +51,54 @@ export const playTactileSound = (type: SoundType, enabled = true) => {
 
     const now = ctx.currentTime;
 
-    if (type === 'click') {
+    if (type === 'tunnelConnect') {
+      // Sci-fi high-speed tunnel warp establishing sweep with harmonic chime
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc1.type = 'sawtooth';
+      osc2.type = 'sine';
+      
+      osc1.frequency.setValueAtTime(150, now);
+      osc1.frequency.exponentialRampToValueAtTime(880, now + 0.18);
+      
+      osc2.frequency.setValueAtTime(300, now);
+      osc2.frequency.exponentialRampToValueAtTime(1320, now + 0.22);
+      
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+      
+      // Filter for warm futuristic resonance
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1200, now);
+      filter.frequency.exponentialRampToValueAtTime(3500, now + 0.2);
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.25);
+      osc2.stop(now + 0.25);
+
+    } else if (type === 'tunnelData') {
+      // Rapid micro-packet data blip
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1400 + Math.random() * 400, now);
+      gain.gain.setValueAtTime(0.02, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.02);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.02);
+
+    } else if (type === 'click') {
       // Crisp subtle tap
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
