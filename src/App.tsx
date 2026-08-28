@@ -10,12 +10,16 @@ import { ControlTowerSidebar } from './components/ControlTowerSidebar';
 import { PipelineVisualizer } from './components/PipelineVisualizer';
 import { AIThinkingPanel } from './components/AIThinkingPanel';
 import { TabTransitionWrapper } from './components/TabTransitionWrapper';
+import { CyberDynamicCanvas } from './components/CyberDynamicCanvas';
+import { AmbientSpotlight } from './components/AmbientSpotlight';
 import { WebhookEvent, AgentSettings, LogEntry } from './types';
 import { playTactileSound } from './utils/sound';
-import { Radio, X, Sparkles } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Radio, X, Sparkles, LayoutGrid, Maximize2, Columns } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'simulator' | 'status' | 'webhooks' | 'settings' | 'architecture'>('simulator');
+  const [layoutMode, setLayoutMode] = useState<'standard' | 'focus' | 'split'>('standard');
   const [webhooks, setWebhooks] = useState<WebhookEvent[]>([]);
   const [selectedRepo, setSelectedRepo] = useState<string>('facebook/react');
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
@@ -285,7 +289,13 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen transition-colors duration-200 antialiased flex flex-col bg-[#030712] text-[#e2e8f0] selection:bg-[#4ade80]/30 selection:text-[#4ade80] cyber-radial-glow bg-cyber-grid">
+    <div className="min-h-screen transition-colors duration-200 antialiased flex flex-col bg-[#030712] text-[#e2e8f0] selection:bg-[#4ade80]/30 selection:text-[#4ade80] relative overflow-x-hidden">
+      {/* Interactive Fluid Dynamic GPU Canvas Background */}
+      <CyberDynamicCanvas status={currentStatus} interactive={true} />
+
+      {/* Holographic Ambient Spotlight Cursor Follower */}
+      <AmbientSpotlight status={currentStatus} />
+
       {/* Header Bar */}
       <Header
         activeTab={activeTab}
@@ -314,7 +324,69 @@ export default function App() {
       />
 
       {/* Main Container Stage */}
-      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 relative z-20">
+        {/* Dynamic Workspace Quick View Toolbar (Only on Command Tower Simulator Tab) */}
+        {activeTab === 'simulator' && (
+          <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#0b0f19]/80 backdrop-blur-md border border-white/10 text-xs font-mono">
+            <div className="flex items-center gap-2 text-slate-300">
+              <span className="w-2 h-2 rounded-full bg-[#4ade80] animate-pulse" />
+              <span className="font-bold text-white uppercase tracking-wider text-[11px]">Active Workspace Grid:</span>
+              <span className="text-slate-400 capitalize hidden sm:inline">{layoutMode} View</span>
+            </div>
+
+            {/* Fluid View Mode Switcher */}
+            <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[#05070f] border border-white/10">
+              <button
+                onClick={() => {
+                  setLayoutMode('standard');
+                  playTactileSound('toggle', settings.soundFxEnabled);
+                }}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-mono flex items-center gap-1.5 transition-all cursor-pointer ${
+                  layoutMode === 'standard'
+                    ? 'bg-[#1f293d] text-[#4ade80] border border-[#4ade80]/40 shadow-sm font-bold'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+                title="Standard 3-Column Command Tower (Sidebar + Stage + AI Thinking)"
+              >
+                <LayoutGrid className="w-3 h-3" />
+                <span className="hidden md:inline">3-Column</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setLayoutMode('focus');
+                  playTactileSound('toggle', settings.soundFxEnabled);
+                }}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-mono flex items-center gap-1.5 transition-all cursor-pointer ${
+                  layoutMode === 'focus'
+                    ? 'bg-[#1f293d] text-[#4ade80] border border-[#4ade80]/40 shadow-sm font-bold'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+                title="Expanded Wide Stage Focus (Maximum Screen for Visualizer & Code Diff)"
+              >
+                <Maximize2 className="w-3 h-3" />
+                <span className="hidden md:inline">Wide Stage</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setLayoutMode('split');
+                  playTactileSound('toggle', settings.soundFxEnabled);
+                }}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-mono flex items-center gap-1.5 transition-all cursor-pointer ${
+                  layoutMode === 'split'
+                    ? 'bg-[#1f293d] text-[#4ade80] border border-[#4ade80]/40 shadow-sm font-bold'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+                title="Side-by-Side Dual View (Pipeline & AI Terminal)"
+              >
+                <Columns className="w-3 h-3" />
+                <span className="hidden md:inline">Duo Split</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Webhook Flash Ingestion Banner Toast */}
         {webhookFlash && (
           <div className="animate-webhook-flash bg-[#0b1329] border border-[#38bdf8] p-4 rounded-xl shadow-[0_0_25px_rgba(56,189,248,0.3)] flex items-center justify-between transition-all">
@@ -337,29 +409,50 @@ export default function App() {
 
             <button
               onClick={() => setWebhookFlash(null)}
-              className="p-1 text-slate-400 hover:text-white rounded"
+              className="p-1 text-slate-400 hover:text-white rounded cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
         )}
 
-        {/* 3-Column Cyber Command Workspace Architecture */}
+        {/* Dynamic Responsive Cyber Command Workspace Architecture */}
         <TabTransitionWrapper activeTab={activeTab}>
           {activeTab === 'simulator' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Left Column: Control Tower Sidebar (3 Cols) */}
-              <div className="lg:col-span-3">
-                <ControlTowerSidebar
-                  settings={settings}
-                  onUpdateSettings={handleUpdateSettings}
-                  selectedRepo={selectedRepo}
-                  onSelectRepo={setSelectedRepo}
-                />
-              </div>
+            <motion.div
+              layout
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"
+            >
+              {/* Left Column: Control Tower Sidebar */}
+              {layoutMode === 'standard' && (
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="lg:col-span-3"
+                >
+                  <ControlTowerSidebar
+                    settings={settings}
+                    onUpdateSettings={handleUpdateSettings}
+                    selectedRepo={selectedRepo}
+                    onSelectRepo={setSelectedRepo}
+                  />
+                </motion.div>
+              )}
 
-              {/* Center Main Stage: Active Pipeline Visualizer & Diff Viewer (6 Cols) */}
-              <div className="lg:col-span-6 space-y-6">
+              {/* Center Main Stage */}
+              <motion.div
+                layout
+                className={
+                  layoutMode === 'standard'
+                    ? 'lg:col-span-6 space-y-6'
+                    : layoutMode === 'focus'
+                    ? 'lg:col-span-12 space-y-6'
+                    : 'lg:col-span-6 space-y-6'
+                }
+              >
                 <PipelineVisualizer
                   status={currentStatus}
                   onSimulateWebhook={handleSimulateWebhook}
@@ -378,28 +471,36 @@ export default function App() {
                   settings={settings}
                   onWebhookReceived={fetchWebhooks}
                 />
-              </div>
+              </motion.div>
 
-              {/* Right Column: AI Thinking Panel & Terminal Log (3 Cols) */}
-              <div className="lg:col-span-3">
-                <AIThinkingPanel
-                  logs={currentLogs}
-                  status={currentStatus}
-                  tokensUsed={tokensUsed}
-                  executionTimeMs={executionTimeMs}
-                  onApproveAndMerge={() => {
-                    setCurrentStatus('resolved');
-                    playTactileSound('success', settings.soundFxEnabled);
-                  }}
-                  onDeclineAndRevert={() => {
-                    setCurrentStatus('failed');
-                    playTactileSound('alert', settings.soundFxEnabled);
-                  }}
-                  onRunAgent={handleRunAgent}
-                  soundFxEnabled={settings.soundFxEnabled}
-                />
-              </div>
-            </div>
+              {/* Right Column: AI Thinking Panel & Terminal Log */}
+              {(layoutMode === 'standard' || layoutMode === 'split') && (
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className={layoutMode === 'standard' ? 'lg:col-span-3' : 'lg:col-span-6'}
+                >
+                  <AIThinkingPanel
+                    logs={currentLogs}
+                    status={currentStatus}
+                    tokensUsed={tokensUsed}
+                    executionTimeMs={executionTimeMs}
+                    onApproveAndMerge={() => {
+                      setCurrentStatus('resolved');
+                      playTactileSound('success', settings.soundFxEnabled);
+                    }}
+                    onDeclineAndRevert={() => {
+                      setCurrentStatus('failed');
+                      playTactileSound('alert', settings.soundFxEnabled);
+                    }}
+                    onRunAgent={handleRunAgent}
+                    soundFxEnabled={settings.soundFxEnabled}
+                  />
+                </motion.div>
+              )}
+            </motion.div>
           )}
 
           {/* Real-Time Status Monitor Tab */}

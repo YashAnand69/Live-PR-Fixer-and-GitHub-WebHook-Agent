@@ -168,12 +168,28 @@ export const ControlTowerSidebar: React.FC<ControlTowerSidebarProps> = ({
         </div>
       </div>
 
-      {/* 3. Confidence Threshold Slider */}
-      <div className="space-y-2 bg-[#05070f] p-3 rounded-lg border border-white/10">
+      {/* 3. Confidence Threshold Slider & Fluid Dynamic Meter */}
+      <div className="space-y-2.5 bg-[#05070f] p-3 rounded-xl border border-white/10 relative overflow-hidden">
         <div className="flex items-center justify-between text-xs font-mono font-bold text-white">
-          <span>Agent Merge Confidence</span>
-          <span className="text-[#4ade80] font-mono">{confidence}%</span>
+          <span className="flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 text-[#4ade80]" />
+            Agent Merge Confidence
+          </span>
+          <span className="text-[#4ade80] font-mono text-sm font-bold bg-[#4ade80]/10 px-2 py-0.5 rounded border border-[#4ade80]/30 shadow-[0_0_8px_rgba(74,222,128,0.2)]">
+            {confidence}%
+          </span>
         </div>
+
+        {/* Fluid Dynamic Progress Glow Track */}
+        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden relative">
+          <motion.div
+            className="h-full bg-gradient-to-r from-emerald-500 via-[#4ade80] to-cyan-400 rounded-full shadow-[0_0_10px_#4ade80]"
+            initial={false}
+            animate={{ width: `${confidence}%` }}
+            transition={{ type: 'spring', damping: 20, stiffness: 200 }}
+          />
+        </div>
+
         <input
           type="range"
           min="50"
@@ -186,6 +202,37 @@ export const ControlTowerSidebar: React.FC<ControlTowerSidebarProps> = ({
         <p className="text-[10px] font-sans text-slate-400">
           Requires {confidence}% AI certainty score before executing live GitHub auto-commits.
         </p>
+      </div>
+
+      {/* Live Sandbox MicroVM Telemetry Sparkline */}
+      <div className="p-3 rounded-xl bg-[#05070f]/90 border border-white/10 space-y-2">
+        <div className="flex items-center justify-between text-[11px] font-mono text-slate-300">
+          <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
+            <Activity className="w-3.5 h-3.5 animate-pulse" />
+            MicroVM Waveform
+          </span>
+          <span className="text-[10px] text-slate-400">0.82 GHz • 218 MB</span>
+        </div>
+
+        {/* Dynamic Animated Sparkline Wave */}
+        <div className="h-9 w-full overflow-hidden flex items-end gap-1 px-1 py-1 rounded bg-[#0b0f19] border border-white/5">
+          {[35, 55, 40, 75, 60, 85, 45, 90, 65, 50, 70, 95, 40, 60, 80, 55, 65, 85].map((val, i) => (
+            <motion.div
+              key={i}
+              className="flex-1 rounded-t bg-gradient-to-t from-cyan-500/30 to-[#4ade80]"
+              animate={{
+                height: [`${val}%`, `${Math.max(15, (val * 1.3) % 100)}%`, `${val}%`],
+                opacity: [0.6, 1, 0.6],
+              }}
+              transition={{
+                duration: 1.8,
+                repeat: Infinity,
+                delay: i * 0.08,
+                ease: 'easeInOut',
+              }}
+            />
+          ))}
+        </div>
       </div>
 
       {/* 4. Security Check Toggles */}

@@ -1,5 +1,18 @@
-import React from 'react';
-import { Bot, GitPullRequest, Radio, ShieldCheck, Cpu, Activity, Search, Volume2, VolumeX } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import {
+  Bot,
+  GitPullRequest,
+  Radio,
+  ShieldCheck,
+  Cpu,
+  Activity,
+  Search,
+  Volume2,
+  VolumeX,
+  Zap,
+  Gauge,
+  Wifi,
+} from 'lucide-react';
 import { motion } from 'motion/react';
 import { playTactileSound, unlockAudio } from '../utils/sound';
 
@@ -20,6 +33,19 @@ export const Header: React.FC<HeaderProps> = ({
   soundFxEnabled = true,
   onToggleSoundFx,
 }) => {
+  const [streamPing, setStreamPing] = useState(86);
+  const [microVmLatency, setMicroVmLatency] = useState(14);
+  const [fps, setFps] = useState(60);
+
+  // Dynamic telemetry live drift jitter for hyper-realistic fluid cyber telemetry
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStreamPing(Math.floor(82 + Math.random() * 12));
+      setMicroVmLatency(Math.floor(12 + Math.random() * 5));
+    }, 2800);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleTabClick = (tab: 'simulator' | 'status' | 'webhooks' | 'settings' | 'architecture') => {
     unlockAudio();
     playTactileSound('tab', soundFxEnabled);
@@ -37,55 +63,91 @@ export const Header: React.FC<HeaderProps> = ({
     if (onToggleSoundFx) {
       onToggleSoundFx();
       if (!soundFxEnabled) {
-        // Just enabled sound, play test sound
         setTimeout(() => playTactileSound('openHub', true), 50);
       }
     }
   };
 
+  const navItems = [
+    {
+      id: 'simulator' as const,
+      label: 'Command Tower',
+      icon: <GitPullRequest className="w-3.5 h-3.5 text-[#4ade80]" />,
+    },
+    {
+      id: 'status' as const,
+      label: 'Status Monitor',
+      icon: <Activity className="w-3.5 h-3.5 text-emerald-400" />,
+    },
+    {
+      id: 'webhooks' as const,
+      label: 'Webhooks',
+      icon: <Radio className="w-3.5 h-3.5 text-cyan-400" />,
+      badge: webhookCount,
+    },
+    {
+      id: 'settings' as const,
+      label: 'Guardrails',
+      icon: <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />,
+    },
+    {
+      id: 'architecture' as const,
+      label: 'Architecture',
+      icon: <Cpu className="w-3.5 h-3.5 text-purple-400" />,
+    },
+  ];
+
   return (
-    <header className="sticky top-0 z-40 bg-[#030712]/95 backdrop-blur-md border-b border-white/10 text-slate-200">
+    <header className="sticky top-0 z-40 bg-[#030712]/90 backdrop-blur-xl border-b border-white/10 text-slate-200 shadow-lg">
       <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex flex-wrap lg:flex-nowrap items-center justify-between min-h-[64px] py-2.5 gap-3">
           {/* Brand & System Status */}
           <div className="flex items-center gap-3 shrink-0">
-            <motion.div 
-              whileHover={{ rotate: 12, scale: 1.05 }}
-              whileTap={{ scale: 0.92 }}
-              className="h-9 w-9 rounded-xl bg-[#0b0f19] border border-[#4ade80]/30 flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(74,222,128,0.15)] cursor-pointer"
+            <motion.div
+              whileHover={{ rotate: 12, scale: 1.08 }}
+              whileTap={{ scale: 0.9 }}
+              className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#0b0f19] to-[#1a2333] border border-[#4ade80]/40 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(74,222,128,0.2)] cursor-pointer"
               onClick={() => handleTabClick('simulator')}
             >
-              <Bot className="w-5 h-5 text-[#4ade80]" />
+              <Bot className="w-5 h-5 text-[#4ade80] animate-pulse" />
             </motion.div>
             <div className="flex flex-col justify-center">
               <div className="flex items-center gap-2 flex-nowrap">
                 <h1 className="font-bold text-xs sm:text-sm tracking-[0.18em] uppercase text-white whitespace-nowrap">
                   Cyber-Command Agent
                 </h1>
-                <span className="px-2 py-0.5 text-[10px] font-mono font-semibold rounded-full border border-[#4ade80]/40 text-[#4ade80] bg-[#4ade80]/10 shrink-0 flex items-center gap-1.5 uppercase tracking-wider whitespace-nowrap">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-pulse" />
-                  Live
+                <span className="px-2 py-0.5 text-[10px] font-mono font-semibold rounded-full border border-[#4ade80]/40 text-[#4ade80] bg-[#4ade80]/10 shrink-0 flex items-center gap-1.5 uppercase tracking-wider whitespace-nowrap shadow-[0_0_8px_rgba(74,222,128,0.2)]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-ping" />
+                  Live Sync
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] font-mono text-slate-400 whitespace-nowrap hidden sm:block">
-                Infra: Serverless/GCP • Sandbox: E2B • Model: Gemini 3.6 Flash
-              </p>
+              <div className="flex items-center gap-3 text-[10px] font-mono text-slate-400 whitespace-nowrap hidden sm:flex mt-0.5">
+                <span className="flex items-center gap-1">
+                  <Wifi className="w-3 h-3 text-cyan-400" />
+                  Gemini Stream: <strong className="text-cyan-300">{streamPing}ms</strong>
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <Gauge className="w-3 h-3 text-amber-400" />
+                  MicroVM Latency: <strong className="text-amber-300">{microVmLatency}ms</strong>
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Controls & Nav Bar */}
+          {/* Controls & Dynamic Sliding Nav Bar */}
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar max-w-full">
             {/* Search / Cmd+K Pill */}
             <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.94 }}
               onClick={handleCommandOpen}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-[#0b0f19] hover:bg-[#1f293d] hover:border-white/20 text-xs font-mono text-slate-300 hover:text-white transition-all shrink-0 cursor-pointer"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-[#0b0f19]/90 hover:bg-[#1a2333] hover:border-[#4ade80]/40 text-xs font-mono text-slate-300 hover:text-white transition-all shrink-0 cursor-pointer shadow-sm"
               title="Open Command Palette (Cmd + K)"
             >
               <Search className="w-3.5 h-3.5 text-[#4ade80]" />
               <span className="hidden sm:inline">Command Hub</span>
-              <span className="px-1.5 py-0.2 text-[10px] bg-white/10 rounded border border-white/10 text-slate-400 font-bold">
+              <span className="px-1.5 py-0.2 text-[10px] bg-white/10 rounded border border-white/10 text-[#4ade80] font-mono font-bold">
                 ⌘K
               </span>
             </motion.button>
@@ -93,19 +155,23 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Audio Quick-Toggle Button */}
             {onToggleSoundFx && (
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.06 }}
                 whileTap={{ scale: 0.92 }}
                 onClick={handleSoundToggle}
-                className={`p-1.5 rounded-lg border transition-all shrink-0 cursor-pointer flex items-center gap-1.5 px-2 text-xs font-mono ${
+                className={`p-1.5 rounded-lg border transition-all shrink-0 cursor-pointer flex items-center gap-1.5 px-2.5 text-xs font-mono ${
                   soundFxEnabled
-                    ? 'bg-[#4ade80]/10 border-[#4ade80]/40 text-[#4ade80] shadow-[0_0_10px_rgba(74,222,128,0.2)]'
+                    ? 'bg-[#4ade80]/15 border-[#4ade80]/50 text-[#4ade80] shadow-[0_0_12px_rgba(74,222,128,0.25)]'
                     : 'bg-[#0b0f19] border-white/10 text-slate-500 hover:text-slate-300'
                 }`}
-                title={soundFxEnabled ? 'Tactile Sound FX Enabled (Click to Mute)' : 'Tactile Sound FX Muted (Click to Enable)'}
+                title={
+                  soundFxEnabled
+                    ? 'Tactile Audio Synthesizer Enabled (Click to Mute)'
+                    : 'Tactile Audio Muted (Click to Enable)'
+                }
               >
                 {soundFxEnabled ? (
                   <>
-                    <Volume2 className="w-3.5 h-3.5 text-[#4ade80]" />
+                    <Volume2 className="w-3.5 h-3.5 text-[#4ade80] animate-pulse" />
                     <span className="hidden md:inline font-bold">Audio ON</span>
                   </>
                 ) : (
@@ -117,82 +183,35 @@ export const Header: React.FC<HeaderProps> = ({
               </motion.button>
             )}
 
-            {/* Nav Tabs */}
-            <nav className="flex items-center gap-1 sm:gap-1.5">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.94 }}
-                onClick={() => handleTabClick('simulator')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
-                  activeTab === 'simulator'
-                    ? 'bg-[#1f293d] text-white border border-[#4ade80]/50 shadow-[0_0_12px_rgba(74,222,128,0.15)]'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-                }`}
-              >
-                <GitPullRequest className="w-3.5 h-3.5 text-[#4ade80]" />
-                <span>Command Tower</span>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.94 }}
-                onClick={() => handleTabClick('status')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
-                  activeTab === 'status'
-                    ? 'bg-[#1f293d] text-white border border-[#4ade80]/50 shadow-[0_0_12px_rgba(74,222,128,0.15)]'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-                }`}
-              >
-                <Activity className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Status Monitor</span>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.94 }}
-                onClick={() => handleTabClick('webhooks')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap relative cursor-pointer ${
-                  activeTab === 'webhooks'
-                    ? 'bg-[#1f293d] text-white border border-[#4ade80]/50 shadow-[0_0_12px_rgba(74,222,128,0.15)]'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-                }`}
-              >
-                <Radio className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Webhooks</span>
-                {webhookCount > 0 && (
-                  <span className="px-1.5 py-0.2 text-[10px] font-mono font-bold rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                    {webhookCount}
-                  </span>
-                )}
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.94 }}
-                onClick={() => handleTabClick('settings')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
-                  activeTab === 'settings'
-                    ? 'bg-[#1f293d] text-white border border-[#4ade80]/50 shadow-[0_0_12px_rgba(74,222,128,0.15)]'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-                }`}
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                <span>Guardrails</span>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.94 }}
-                onClick={() => handleTabClick('architecture')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
-                  activeTab === 'architecture'
-                    ? 'bg-[#1f293d] text-white border border-[#4ade80]/50 shadow-[0_0_12px_rgba(74,222,128,0.15)]'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-                }`}
-              >
-                <Cpu className="w-3.5 h-3.5 text-purple-400" />
-                <span>Architecture</span>
-              </motion.button>
+            {/* Dynamic Magnetic Sliding Tabs Nav */}
+            <nav className="flex items-center gap-1 p-1 rounded-xl bg-[#080d19]/90 border border-white/10 relative">
+              {navItems.map((item) => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleTabClick(item.id)}
+                    className={`relative px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer z-10 ${
+                      isActive ? 'text-white font-bold' : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeHeaderTabGlow"
+                        className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#19243a] to-[#1c2c48] border border-[#4ade80]/50 shadow-[0_0_14px_rgba(74,222,128,0.22)] z-[-1]"
+                        transition={{ type: 'spring', bounce: 0.18, duration: 0.35 }}
+                      />
+                    )}
+                    {item.icon}
+                    <span>{item.label}</span>
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <span className="px-1.5 py-0.2 text-[10px] font-mono font-bold rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </nav>
           </div>
         </div>
