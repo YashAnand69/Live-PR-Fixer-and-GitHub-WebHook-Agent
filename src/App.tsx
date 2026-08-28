@@ -290,8 +290,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen transition-colors duration-200 antialiased flex flex-col bg-[#030712] text-[#e2e8f0] selection:bg-[#4ade80]/30 selection:text-[#4ade80] relative overflow-x-hidden">
-      {/* Interactive Fluid Dynamic GPU Canvas Background */}
-      <CyberDynamicCanvas status={currentStatus} interactive={true} />
+      {/* Interactive Fluid Dynamic GPU Canvas Background with Navier-Stokes Solver */}
+      <CyberDynamicCanvas status={currentStatus} interactive={true} soundFxEnabled={settings.soundFxEnabled ?? true} />
 
       {/* Holographic Ambient Spotlight Cursor Follower */}
       <AmbientSpotlight status={currentStatus} />

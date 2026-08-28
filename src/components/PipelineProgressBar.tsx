@@ -323,16 +323,23 @@ export const PipelineProgressBar: React.FC<PipelineProgressBarProps> = ({
           <motion.div
             className={`h-full rounded-full relative overflow-hidden transition-all duration-300 ${
               isFailed
-                ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-red-500 shadow-[0_0_12px_rgba(239,68,68,0.5)]'
-                : 'bg-gradient-to-r from-emerald-500 via-[#4ade80] to-cyan-400 shadow-[0_0_14px_rgba(74,222,128,0.5)]'
+                ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)]'
+                : 'bg-gradient-to-r from-emerald-500 via-[#4ade80] to-cyan-400 shadow-[0_0_18px_rgba(74,222,128,0.6)]'
             }`}
             style={{ width: `${Math.min(100, Math.max(0, displayedPercent))}%` }}
           >
-            {/* Animated Cyber-Scan Stripe Shimmer */}
-            <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.15),rgba(255,255,255,0.15)_8px,transparent_8px,transparent_16px)] animate-[moveStripe_20s_linear_infinite]" />
+            {/* Animated Cyber Fluid Wave Refraction */}
+            <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.18),rgba(255,255,255,0.18)_8px,transparent_8px,transparent_16px)] animate-[moveStripe_12s_linear_infinite]" />
 
-            {/* Glowing Leading Head Pulse */}
-            <div className="absolute right-0 top-0 bottom-0 w-3 bg-white blur-[1px] opacity-80" />
+            {/* Fluid Internal Bead Bubbles */}
+            <div className="absolute inset-0 flex items-center justify-around opacity-60">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+              <span className="w-1 h-1 rounded-full bg-cyan-200 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-200 animate-bounce" />
+            </div>
+
+            {/* Glowing Leading Head Plasma Surge */}
+            <div className="absolute right-0 top-0 bottom-0 w-4 bg-white blur-[1px] opacity-90 shadow-[0_0_8px_#ffffff]" />
           </motion.div>
         </div>
 

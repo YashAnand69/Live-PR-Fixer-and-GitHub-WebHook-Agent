@@ -45,7 +45,10 @@ export type SoundType =
   | 'stepAdvance'
   | 'progressTick'
   | 'repairComplete'
-  | 'glitchStatic';
+  | 'glitchStatic'
+  | 'fluidSplash'
+  | 'fluidWave'
+  | 'vortexRipple';
 
 export const playTactileSound = (type: SoundType, enabled = true) => {
   if (!enabled) return;
@@ -149,6 +152,64 @@ export const playTactileSound = (type: SoundType, enabled = true) => {
         g.connect(ctx.destination);
         o.start(now + idx * 0.045);
         o.stop(now + idx * 0.045 + 0.2);
+      });
+
+    } else if (type === 'fluidSplash') {
+      // Fluid droplet & water ripple impact synthesis
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, now);
+      osc.frequency.exponentialRampToValueAtTime(180, now + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(80, now + 0.22);
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1200, now);
+      filter.frequency.exponentialRampToValueAtTime(300, now + 0.22);
+
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.22);
+
+    } else if (type === 'fluidWave') {
+      // Hydrodynamic ocean surge / ambient fluid flow
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(90, now);
+      osc.frequency.linearRampToValueAtTime(140, now + 0.15);
+      osc.frequency.linearRampToValueAtTime(70, now + 0.35);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.03, now + 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+
+    } else if (type === 'vortexRipple') {
+      // Swirling aerodynamic vortex harmonic chime
+      const freqs = [320, 480, 640];
+      freqs.forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, now + i * 0.03);
+        osc.frequency.exponentialRampToValueAtTime(f * 1.5, now + i * 0.03 + 0.18);
+        gain.gain.setValueAtTime(0.02, now + i * 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.03 + 0.2);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.03);
+        osc.stop(now + i * 0.03 + 0.2);
       });
 
     } else if (type === 'glitchStatic') {

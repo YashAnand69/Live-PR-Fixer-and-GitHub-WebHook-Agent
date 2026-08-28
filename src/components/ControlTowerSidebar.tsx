@@ -9,11 +9,14 @@ import {
   VolumeX,
   Lock,
   CheckCircle2,
-  Activity
+  Activity,
+  Waves
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AgentSettings, AgentPersona, ThemeMode } from '../types';
 import { playTactileSound } from '../utils/sound';
+import { FluidCard } from './FluidCard';
+import { LiquidSloshGauge } from './LiquidSloshGauge';
 
 interface ControlTowerSidebarProps {
   settings: AgentSettings;
@@ -168,40 +171,50 @@ export const ControlTowerSidebar: React.FC<ControlTowerSidebarProps> = ({
         </div>
       </div>
 
-      {/* 3. Confidence Threshold Slider & Fluid Dynamic Meter */}
-      <div className="space-y-2.5 bg-[#05070f] p-3 rounded-xl border border-white/10 relative overflow-hidden">
-        <div className="flex items-center justify-between text-xs font-mono font-bold text-white">
-          <span className="flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-[#4ade80]" />
-            Agent Merge Confidence
-          </span>
-          <span className="text-[#4ade80] font-mono text-sm font-bold bg-[#4ade80]/10 px-2 py-0.5 rounded border border-[#4ade80]/30 shadow-[0_0_8px_rgba(74,222,128,0.2)]">
-            {confidence}%
-          </span>
-        </div>
-
-        {/* Fluid Dynamic Progress Glow Track */}
-        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden relative">
-          <motion.div
-            className="h-full bg-gradient-to-r from-emerald-500 via-[#4ade80] to-cyan-400 rounded-full shadow-[0_0_10px_#4ade80]"
-            initial={false}
-            animate={{ width: `${confidence}%` }}
-            transition={{ type: 'spring', damping: 20, stiffness: 200 }}
-          />
-        </div>
-
-        <input
-          type="range"
-          min="50"
-          max="95"
+      {/* 3. Confidence Threshold Slider & Hydrodynamic Liquid Slosh Gauge */}
+      <div className="space-y-3">
+        <LiquidSloshGauge
           value={confidence}
-          onChange={(e) => handleConfidenceChange(Number(e.target.value))}
-          onPointerUp={() => playTactileSound('toggle', soundFx)}
-          className="w-full accent-[#4ade80] cursor-pointer"
+          label="Hydrodynamic Merge Buffer"
+          sublabel={`Auto-commit gating: ${confidence}% threshold`}
+          color="#4ade80"
+          accentGlow="rgba(74, 222, 128, 0.4)"
         />
-        <p className="text-[10px] font-sans text-slate-400">
-          Requires {confidence}% AI certainty score before executing live GitHub auto-commits.
-        </p>
+
+        <div className="space-y-2 bg-[#05070f] p-3 rounded-xl border border-white/10 relative overflow-hidden">
+          <div className="flex items-center justify-between text-xs font-mono font-bold text-white">
+            <span className="flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-[#4ade80]" />
+              Agent Merge Confidence
+            </span>
+            <span className="text-[#4ade80] font-mono text-sm font-bold bg-[#4ade80]/10 px-2 py-0.5 rounded border border-[#4ade80]/30 shadow-[0_0_8px_rgba(74,222,128,0.2)]">
+              {confidence}%
+            </span>
+          </div>
+
+          {/* Fluid Dynamic Progress Glow Track */}
+          <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden relative">
+            <motion.div
+              className="h-full bg-gradient-to-r from-emerald-500 via-[#4ade80] to-cyan-400 rounded-full shadow-[0_0_10px_#4ade80]"
+              initial={false}
+              animate={{ width: `${confidence}%` }}
+              transition={{ type: 'spring', damping: 20, stiffness: 200 }}
+            />
+          </div>
+
+          <input
+            type="range"
+            min="50"
+            max="95"
+            value={confidence}
+            onChange={(e) => handleConfidenceChange(Number(e.target.value))}
+            onPointerUp={() => playTactileSound('toggle', soundFx)}
+            className="w-full accent-[#4ade80] cursor-pointer"
+          />
+          <p className="text-[10px] font-sans text-slate-400">
+            Requires {confidence}% AI certainty score before executing live GitHub auto-commits.
+          </p>
+        </div>
       </div>
 
       {/* Live Sandbox MicroVM Telemetry Sparkline */}
