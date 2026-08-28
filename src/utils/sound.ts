@@ -44,7 +44,8 @@ export type SoundType =
   | 'tunnelData'
   | 'stepAdvance'
   | 'progressTick'
-  | 'repairComplete';
+  | 'repairComplete'
+  | 'glitchStatic';
 
 export const playTactileSound = (type: SoundType, enabled = true) => {
   if (!enabled) return;
@@ -149,6 +150,32 @@ export const playTactileSound = (type: SoundType, enabled = true) => {
         o.start(now + idx * 0.045);
         o.stop(now + idx * 0.045 + 0.2);
       });
+
+    } else if (type === 'glitchStatic') {
+      // Cybernetic glitch burst: frequency-modulated noise & buzz
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.linearRampToValueAtTime(40, now + 0.05);
+      osc.frequency.setValueAtTime(280, now + 0.08);
+      osc.frequency.linearRampToValueAtTime(80, now + 0.16);
+
+      // Lowpass filter for analog crunch
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(800, now);
+      filter.Q.setValueAtTime(3.0, now);
+
+      gain.gain.setValueAtTime(0.045, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.18);
 
     } else if (type === 'click') {
       // Crisp subtle tap

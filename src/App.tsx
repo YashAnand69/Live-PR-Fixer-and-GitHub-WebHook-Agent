@@ -243,6 +243,47 @@ export default function App() {
     }, 3600);
   };
 
+  const handleSimulateFailure = () => {
+    setCurrentStatus('reproducing');
+    playTactileSound('beacon', settings.soundFxEnabled);
+
+    const log1: LogEntry = {
+      id: `log_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      type: 'sandbox',
+      message: `[SANDBOX]: Spinning up isolated E2B microVM runner for ${selectedRepo}...`,
+    };
+    setCurrentLogs((prev) => [log1, ...prev]);
+
+    setTimeout(() => {
+      setCurrentStatus('verifying');
+      playTactileSound('stepAdvance', settings.soundFxEnabled);
+      setCurrentLogs((prev) => [
+        {
+          id: `log_${Date.now() + 1}`,
+          timestamp: new Date().toISOString(),
+          type: 'sandbox',
+          message: 'E2B Runner: Executing Jest test suite with regression tests...',
+        },
+        ...prev,
+      ]);
+    }, 800);
+
+    setTimeout(() => {
+      setCurrentStatus('failed');
+      playTactileSound('glitchStatic', settings.soundFxEnabled);
+      setCurrentLogs((prev) => [
+        {
+          id: `log_${Date.now() + 2}`,
+          timestamp: new Date().toISOString(),
+          type: 'error',
+          message: 'FAIL: Jest exit code 1 in authMiddleware.test.ts. Assertion mismatch: expected 200 OK, got 500 TokenExpiredException.',
+        },
+        ...prev,
+      ]);
+    }, 1800);
+  };
+
   return (
     <div className="min-h-screen transition-colors duration-200 antialiased flex flex-col bg-[#030712] text-[#e2e8f0] selection:bg-[#4ade80]/30 selection:text-[#4ade80] cyber-radial-glow bg-cyber-grid">
       {/* Header Bar */}
@@ -264,6 +305,7 @@ export default function App() {
         onClose={() => setIsCommandPaletteOpen(false)}
         onRunAgent={handleRunAgent}
         onSimulateWebhook={handleSimulateWebhook}
+        onSimulateFailure={handleSimulateFailure}
         onSelectTab={setActiveTab}
         currentPersona={settings.persona}
         onChangePersona={(p) => handleUpdateSettings({ ...settings, persona: p })}
@@ -322,6 +364,11 @@ export default function App() {
                   status={currentStatus}
                   onSimulateWebhook={handleSimulateWebhook}
                   onRunAgent={handleRunAgent}
+                  onSimulateFailure={handleSimulateFailure}
+                  onResetStatus={() => {
+                    setCurrentStatus('queued');
+                    playTactileSound('clear', settings.soundFxEnabled);
+                  }}
                   soundFxEnabled={settings.soundFxEnabled}
                   tokensUsed={tokensUsed}
                   executionTimeMs={executionTimeMs}

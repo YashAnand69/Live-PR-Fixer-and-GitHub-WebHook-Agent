@@ -24,6 +24,7 @@ interface CommandPaletteProps {
   onClose: () => void;
   onRunAgent: () => void;
   onSimulateWebhook: () => void;
+  onSimulateFailure?: () => void;
   onSelectTab: (tab: 'simulator' | 'status' | 'webhooks' | 'settings' | 'architecture') => void;
   currentPersona?: AgentPersona;
   onChangePersona: (persona: AgentPersona) => void;
@@ -38,6 +39,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onClose,
   onRunAgent,
   onSimulateWebhook,
+  onSimulateFailure,
   onSelectTab,
   currentPersona = 'safe_linter',
   onChangePersona,
@@ -60,6 +62,22 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       action: () => {
         playTactileSound('primary', soundFxEnabled);
         onRunAgent();
+        onClose();
+      }
+    },
+    {
+      id: 'simulate-failure-glitch',
+      category: 'Agent Action',
+      label: 'Simulate Pipeline Failure & Cyber Glitch Anomaly',
+      sublabel: 'Trigger sandbox test assertion error with chromatic glitch effect',
+      icon: <Zap className="w-4 h-4 text-red-400" />,
+      shortcut: '⌘F',
+      action: () => {
+        playTactileSound('alert', soundFxEnabled);
+        onSelectTab('simulator');
+        if (onSimulateFailure) {
+          onSimulateFailure();
+        }
         onClose();
       }
     },
