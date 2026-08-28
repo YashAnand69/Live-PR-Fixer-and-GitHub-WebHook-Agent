@@ -1,32 +1,56 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
+import React, { useEffect, useRef } from 'react';
 
 interface AmbientSpotlightProps {
   status: 'queued' | 'reproducing' | 'analyzing' | 'patching' | 'verifying' | 'resolved' | 'failed';
 }
 
 export const AmbientSpotlight: React.FC<AmbientSpotlightProps> = ({ status }) => {
-  const [mousePosition, setMousePosition] = useState({ x: -500, y: -500 });
-  const [isVisible, setIsVisible] = useState(false);
+  const spotlightRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    let animId: number;
+    let targetX = -500;
+    let targetY = -500;
+    let currentX = -500;
+    let currentY = -500;
+    let isVisible = false;
+
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-      if (!isVisible) setIsVisible(true);
+      targetX = e.clientX;
+      targetY = e.clientY;
+      if (!isVisible && spotlightRef.current) {
+        isVisible = true;
+        spotlightRef.current.style.opacity = '1';
+      }
     };
 
     const handleMouseLeave = () => {
-      setIsVisible(false);
+      isVisible = false;
+      if (spotlightRef.current) {
+        spotlightRef.current.style.opacity = '0';
+      }
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    document.body.addEventListener('mouseleave', handleMouseLeave);
+    // Smooth 60-120fps direct transform lerp without triggering React re-renders
+    const loop = () => {
+      if (isVisible && spotlightRef.current) {
+        currentX += (targetX - currentX) * 0.18;
+        currentY += (targetY - currentY) * 0.18;
+        spotlightRef.current.style.transform = `translate3d(${currentX - 250}px, ${currentY - 250}px, 0)`;
+      }
+      animId = requestAnimationFrame(loop);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    document.body.addEventListener('mouseleave', handleMouseLeave, { passive: true });
+    animId = requestAnimationFrame(loop);
 
     return () => {
+      cancelAnimationFrame(animId);
       window.removeEventListener('mousemove', handleMouseMove);
       document.body.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [isVisible]);
+  }, []);
 
   const getSpotlightColor = () => {
     switch (status) {
@@ -45,23 +69,12 @@ export const AmbientSpotlight: React.FC<AmbientSpotlightProps> = ({ status }) =>
     }
   };
 
-  if (!isVisible) return null;
-
   return (
-    <motion.div
-      className="fixed pointer-events-none z-10 w-[500px] h-[500px] rounded-full blur-[100px] transition-colors duration-500"
-      animate={{
-        x: mousePosition.x - 250,
-        y: mousePosition.y - 250,
-        backgroundColor: getSpotlightColor(),
-      }}
-      transition={{
-        type: 'spring',
-        damping: 35,
-        stiffness: 250,
-        mass: 0.5,
-      }}
+    <div
+      ref={spotlightRef}
+      className="fixed pointer-events-none z-10 w-[500px] h-[500px] rounded-full blur-[100px] transition-colors duration-500 will-change-transform opacity-0"
       style={{
+        backgroundColor: getSpotlightColor(),
         mixBlendMode: 'screen',
       }}
     />

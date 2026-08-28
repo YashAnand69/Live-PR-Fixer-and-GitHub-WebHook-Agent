@@ -30,21 +30,21 @@ export const LiquidSloshGauge: React.FC<LiquidSloshGaugeProps> = ({
     let animId: number;
     let time = 0;
 
-    // Initialize bubbles
+    // Initialize 8 lightweight micro-bubbles
     if (bubblesRef.current.length === 0) {
-      for (let i = 0; i < 16; i++) {
+      for (let i = 0; i < 8; i++) {
         bubblesRef.current.push({
           x: Math.random() * 260,
           y: Math.random() * height,
-          r: Math.random() * 2 + 1,
-          speed: Math.random() * 0.8 + 0.3,
-          opacity: Math.random() * 0.6 + 0.2,
+          r: Math.random() * 1.5 + 1,
+          speed: Math.random() * 0.7 + 0.3,
+          opacity: Math.random() * 0.5 + 0.2,
         });
       }
     }
 
     const render = () => {
-      time += 0.045;
+      time += 0.04;
       // Fluid level inertia smoothing
       currentLevelRef.current += (value - currentLevelRef.current) * 0.08;
 
@@ -55,17 +55,16 @@ export const LiquidSloshGauge: React.FC<LiquidSloshGaugeProps> = ({
 
       ctx.clearRect(0, 0, w, h);
 
-      // 1. Draw Liquid Primary Sine Wave
+      // 1. Draw Liquid Primary Wave with stepped sampling for speed
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(0, h);
       ctx.lineTo(0, baseWaterY);
 
-      for (let x = 0; x <= w; x += 4) {
-        const wave1 = Math.sin(x * 0.04 + time * 1.8) * 4.5;
-        const wave2 = Math.cos(x * 0.02 - time * 1.2) * 2.5;
-        const y = baseWaterY + wave1 + wave2;
-        ctx.lineTo(x, y);
+      for (let x = 0; x <= w; x += 6) {
+        const wave1 = Math.sin(x * 0.04 + time * 1.6) * 4.0;
+        const wave2 = Math.cos(x * 0.02 - time * 1.1) * 2.0;
+        ctx.lineTo(x, baseWaterY + wave1 + wave2);
       }
 
       ctx.lineTo(w, h);
@@ -75,26 +74,23 @@ export const LiquidSloshGauge: React.FC<LiquidSloshGaugeProps> = ({
       grad.addColorStop(0, color);
       grad.addColorStop(1, '#052e16');
       ctx.fillStyle = grad;
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = accentGlow;
       ctx.fill();
       ctx.restore();
 
-      // 2. Draw Secondary Back Wave (Translucent Meniscus)
+      // 2. Draw Secondary Back Wave (Meniscus)
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(0, h);
       ctx.lineTo(0, baseWaterY);
 
-      for (let x = 0; x <= w; x += 4) {
-        const waveBack = Math.sin(x * 0.035 - time * 2.2 + 1.2) * 3.5;
-        const y = baseWaterY + waveBack;
-        ctx.lineTo(x, y);
+      for (let x = 0; x <= w; x += 6) {
+        const waveBack = Math.sin(x * 0.035 - time * 2.0 + 1.2) * 3.0;
+        ctx.lineTo(x, baseWaterY + waveBack);
       }
 
       ctx.lineTo(w, h);
       ctx.closePath();
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
       ctx.fill();
       ctx.restore();
 
@@ -102,10 +98,10 @@ export const LiquidSloshGauge: React.FC<LiquidSloshGaugeProps> = ({
       ctx.save();
       for (const b of bubblesRef.current) {
         b.y -= b.speed;
-        b.x += Math.sin(time + b.y * 0.05) * 0.3;
+        b.x += Math.sin(time + b.y * 0.05) * 0.25;
 
         if (b.y < baseWaterY) {
-          b.y = h + Math.random() * 10;
+          b.y = h + Math.random() * 8;
           b.x = Math.random() * w;
         }
 
@@ -124,7 +120,7 @@ export const LiquidSloshGauge: React.FC<LiquidSloshGaugeProps> = ({
     return () => {
       cancelAnimationFrame(animId);
     };
-  }, [value, color, accentGlow, height]);
+  }, [value, color, height]);
 
   return (
     <div className="p-3.5 rounded-xl bg-[#05070f]/90 border border-white/10 relative overflow-hidden space-y-2">
@@ -146,7 +142,6 @@ export const LiquidSloshGauge: React.FC<LiquidSloshGaugeProps> = ({
           height={55}
           className="w-full h-full block"
         />
-        {/* Surface reflection highlight line */}
         <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
       </div>
 
